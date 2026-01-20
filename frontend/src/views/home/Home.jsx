@@ -1,22 +1,29 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { useAuth } from '../../contexts/AuthContext'
 import './Home.css'
 
 const Home = () => {
 
     const navigate = useNavigate()
+    const { logout, user } = useAuth()
     const [projects, setProjects] = useState([])
 
     function navigateToProject(projectId) {
         navigate(`/project/${projectId}`)
     }
 
+    function handleLogout() {
+        logout()
+        navigate('/login')
+    }
+
     useEffect(() => {
         axios.get('http://localhost:3000/projects/get-all')
             .then(response => {
-                console.log('Response:', response) // Log the full response to check data structure
-                setProjects(response.data.data) // Assuming the data is inside response.data.data
+                console.log('Response:', response)
+                setProjects(response.data.data)
             })
             .catch((error) => {
                 console.error('Error fetching projects:', error)
@@ -26,6 +33,11 @@ const Home = () => {
     return (
         <main className='home'>
             <section className='home-section'>
+                <div className="home-header">
+                    <h1>Welcome, {user?.name || 'User'}!</h1>
+                    <button onClick={handleLogout} className="logout-btn">Logout</button>
+                </div>
+                
                 <button
                     onClick={() => {
                         navigate('/create-project')
@@ -43,7 +55,7 @@ const Home = () => {
                         {projects.map((project) => {
                             return (
                                 <div
-                                    key={project._id} // Add a unique key for each project
+                                    key={project._id}
                                     onClick={() => {
                                         navigateToProject(project._id)
                                     }}

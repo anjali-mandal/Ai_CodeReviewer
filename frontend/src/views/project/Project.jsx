@@ -3,10 +3,12 @@ import { useParams } from 'react-router-dom'
 import { io as SocketIo } from "socket.io-client"
 import Editor from '@monaco-editor/react'
 import ReactMarkdown from 'react-markdown'
+import { useAuth } from '../../contexts/AuthContext'
 import "./Project.css"
 
 const Project = () => {
     const prams = useParams()
+    const { token } = useAuth()
     const [ messages, setMessages ] = useState([])
     const [ input, setInput ] = useState("")
     const [ socket, setSocket ] = useState(null)
@@ -29,7 +31,12 @@ const Project = () => {
     }
 
     function getReview() {
-        socket.emit("get-review", code)
+        if (socket) {
+            setReview(" Generating review...")
+            socket.emit("get-review", code)
+        } else {
+            setReview(" Socket not connected yet. Please wait...")
+        }
     }
 
     // Function to change programming language
@@ -39,6 +46,9 @@ const Project = () => {
 
     useEffect(() => {
         const io = SocketIo("http://localhost:3000", {
+            auth: {
+                token: token
+            },
             query: {
                 project: prams.id
             }
