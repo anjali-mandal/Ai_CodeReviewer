@@ -25,7 +25,7 @@ backend/build/
 .env
 .env.*
 frontend/.env
-backend/.env
+ai/.env
 
 # Editor directories and files
 .vscode/
